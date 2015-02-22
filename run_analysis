@@ -1,0 +1,57 @@
+#project requirements 
+#You should create one R script called run_analysis.R that does the following. 
+#1. Merges the training and the test sets to create one data set.
+#2. Extracts only the measurements on the mean and standard deviation for each measurement. 
+#3. Uses descriptive activity names to name the activities in the data set
+#4. Appropriately labels the data set with descriptive variable names. 
+#5. From the data set in step 4, creates a second, independent tidy data set 
+#   with the average of each variable for each activity and each subject.
+###NOTE: requirements are addressed out of order when logical ... 
+
+setwd("GettingAndCleaningData/getdata-projectfiles-UCI HAR Dataset/UCI HAR Dataset")
+# need to installe dplyr package for this script: run install.packages("dplyr")
+library(dplyr)
+
+#read in data files and create plyr data frames 
+#colnames file 
+# 4. Appropriately labels the data set with descriptive variable names. **
+features<-read.table("features.txt")
+#create test dataset ... 
+subject_test<-read.table("test/subject_test.txt") #read in test dataset subject IDs
+colnames(subject_test)<-"subject" #add column name to subject IDs **
+x_test<-read.table("test/X_test.txt") #read in test dataset 
+colnames(x_test)<-features[,2] #add column names from features file **
+y_test<-read.table("test/Y_test.txt") #read in test dataset of activities 
+colnames(y_test)<-"activity" #add column name to activities **
+test_data<-cbind(subject_test, x_test, y_test) #combine test datasets by column 
+test_data<-tbl_df(test_data) #create dplyr dataframe
+rm(subject_test, x_test, y_test) #remove variables not needed 
+#create train dataset 
+subject_train<-read.table("train/subject_train.txt") #read in train dataset subject ID
+colnames(subject_train)<-"subject" # add column name to subject IDs **
+x_train<-read.table("train/x_train.txt") #read in train dataset
+colnames(x_train)<-features[,2] #add column names from feature file **
+y_train<-read.table("train/y_train.txt") #read in train dataset of activities 
+colnames(y_train)<-"activity" #add column name to activities **
+train_data<-cbind(subject_train, x_train, y_train) #combine train datasets by column
+train_data<-tbl_df(train_data) #create dplyr dataframe
+rm(subject_train, x_train, y_train, features) #remove variables not needed 
+
+#1. Merges the training and the test sets to create one data set.
+#create test/train combined dataframe
+full_data<-bind_rows(test_data, train_data)
+
+# 3. Uses descriptive activity names to name the activities in the data set
+activity_labels<-read.table("activity_labels.txt")
+full_data$activity<-factor(full_data$activity, labels=activity_labels[,2])
+rm(test_data, train_data, activity_labels)
+
+#2. Extracts only the measurements on the mean and standard deviation for each measurement. 
+#Extract only the measurements on the mean and standard deviation for each measurement. 
+mean_sd<-full_data %>% select(subject, contains("mean"), activity)
+
+
+# 5. From the data set in step 4, creates a second, independent tidy data set 
+# with the average of each variable for each activity and each subject.
+step_5_data<-full_data %>% group_by(subject, activity) %>% summarise_each(funs(mean))
+write.table(step_5_data, file="step_5_data.txt", row.names=FALSE)
