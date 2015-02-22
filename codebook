@@ -1,0 +1,17 @@
+run_analysis code 
+
+# Variables
+
+subject_test = list of subject IDs in test dataset 
+x_test = measures from test group
+y_test = activity categories from test group 
+test_data = combined test dataset 
+subject_train = list of subject IDs in train dataset
+x_train = measures from train group 
+y_train = activity categories from train group 
+features = variable names for measures data 
+activity_labels = category (factor) labels for activity variable 
+
+
+Original data: https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
+Original description of the dataset: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
